@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+    <display-name>ISAP_Provisioning</display-name>
+     <welcome-file-list>
+      <welcome-file>index.jsp</welcome-file>
+     </welcome-file-list>
+  
+	 <servlet>
+	  <servlet-name>myBatisServlet</servlet-name>
+	  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	  <init-param>
+	      <param-name>contextConfigLocation</param-name>
+	      <param-value>/WEB-INF/config/springConfig.xml</param-value>
+	  </init-param>
+	</servlet>
+	
+	<servlet-mapping>
+	  <servlet-name>myBatisServlet</servlet-name>
+	  <url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+	    <servlet-name>default</servlet-name>
+	    <url-pattern>/includes/*</url-pattern>
+	    <url-pattern>/ajax/*</url-pattern>
+	    <url-pattern>/css/*</url-pattern>
+	    <url-pattern>/data/*</url-pattern>
+	    <url-pattern>/fonts/*</url-pattern>
+	    <url-pattern>/img/*</url-pattern>
+	    <url-pattern>/js/*</url-pattern>
+    </servlet-mapping>
+    
+    
+    
+    <!-- Error Pages configurion Start -->
+	<error-page>
+		<error-code>404</error-code>
+		<location>/errorpages/error404.jsp</location>
+	</error-page>
+	
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/errorpages/error.jsp</location>
+	</error-page>
+
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+
+
+	
+</web-app>

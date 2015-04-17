@@ -1,0 +1,80 @@
+package com.syntel.isap.provisioning.dao;
+
+import java.util.List;
+
+
+import com.syntel.isap.provisioning.bean.Project;
+import com.syntel.isap.provisioning.bean.User;
+import com.syntel.isap.provisioning.bean.VdcDeptQuotaMap;
+import com.syntel.isap.provisioning.bean.VdcMaster;
+import com.syntel.isap.provisioning.bean.VdcProjQuotaMap;
+
+public interface IProjectDao {
+	
+	 void insertData(Project project);
+	
+	List<Project> getprojectLists(int dptid);
+	List<Integer> getUserinfo(User user);
+	 void deleteProject(Integer proj_id);
+	 Project editProject(Integer proj_id);
+	 void updateProject(Project project);
+	List<User> getUsersByCorporate(User user);
+
+	 void updateRoleMapByUserId(int userID);
+
+	 void updateProjIdInUserTable(int projId, int userID);
+
+	 List<Integer> getUserByProjID(Integer proj_id);
+
+	 void updateUserProjIds(Integer userID);
+
+	 void updateUserRole(Integer userID);
+
+	 Project getProjectById(int proj_id);
+
+	 String getUserNameById(int usr_id);
+
+	 int getUserIdByProjId(int proj_id);
+
+	 void updateUser(int userId);
+
+	 void mapRoleToUser(User user);
+
+	 void mapProjectToUser(int usr_id, int proj_id);
+
+	 User getOwnerByName(String userName);
+
+	 List<VdcMaster> getVdcListFromVdcMaster();
+
+	 VdcDeptQuotaMap vdcCgQuotaByVdcIDanddptID(int selectedVdcId,
+			int dptId);
+
+	 VdcProjQuotaMap getVdcdetails(int selectedVdcId, int projId);
+
+	 void allocateVdcToProjectGroup(VdcProjQuotaMap vdcProjQuotaMapBean);
+
+	 List<VdcProjQuotaMap> getRowsFromVdcProjQuotaMapTable();
+
+	
+	 int getSumOftotalAllocatedProjVcpu(int selectedVdcId);
+
+	 int gettotalAllocatedProjDiskStorage(int selectedVdcId);
+
+	 int getSumOfTotalAllocatedMemoryToProj(int selectedVdcId);
+
+	 VdcDeptQuotaMap getVDCdetailsBydptID(int dptID);
+
+	 void updateFreeSpacesinDptquota(int cgAvailableMem,int cgAvailableVcpu, int cgAvailableDiskStorage, int selectedVdcId,int dptID);
+
+	 List<VdcProjQuotaMap> getRowsFromProjQuotaMapTable();
+
+	 Project getProjGrpByID(int projId);
+
+	int getfree_memory(int dptID,int selectedVdcId);
+
+	int getfree_vcpuDB(int dptID,int selectedVdcId);
+
+	int getfree_diskDB(int dptID,int selectedVdcId);
+	 
+
+}

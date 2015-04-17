@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+<mvc:annotation-driven/>
+
+<context:component-scan base-package="com.syntel.isap.provisioning" />
+
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<property name="prefix" value="/WEB-INF/view/" />
+	<property name="suffix" value=".jsp" />
+</bean>
+
+<bean id="messageSource"
+ class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+ <!-- If you have multiple properties file (depending on usecases),
+  use 'basenames' property and provide multiple properties file separated by
+  comma -->
+ <property name="basename" value="classpath:messages" />
+</bean>
+
+    
+ <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	<property name="url" value="jdbc:mysql://192.168.175.68:3306/isap_env_prov" /> 
+	<property name="username" value="root" />
+	<property name="password" value="Syntel123$" />
+</bean> 
+
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	<property name="dataSource" ref="dataSource" />
+	<property name="typeAliasesPackage" value="com.syntel.isap.provisioning.bean"/>
+	<property name="mapperLocations" value="classpath*:com/syntel/isap/provisioning/mapper/*.xml" />
+</bean>
+
+<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+	<constructor-arg index="0" ref="sqlSessionFactory" />
+</bean>
+
+<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	<property name="basePackage" value="com.syntel.isap.provisioning.mapper" />
+</bean>
+
+<tx:annotation-driven transaction-manager="transactionManager" />
+
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<property name="dataSource" ref="dataSource" />
+</bean>
+
+</beans>

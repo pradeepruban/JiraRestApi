@@ -1,0 +1,461 @@
+package com.syntel.isap.provisioning.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.isap.core.responses.xsd.GetOpenstackQuotaResp;
+import com.syntel.isap.provisioning.bean.AvailableVdcQuota;
+import com.syntel.isap.provisioning.bean.CorporateGroups;
+import com.syntel.isap.provisioning.bean.Department;
+import com.syntel.isap.provisioning.bean.Project;
+import com.syntel.isap.provisioning.bean.User;
+import com.syntel.isap.provisioning.bean.VdcCgQuotaMap;
+import com.syntel.isap.provisioning.bean.VdcDeptQuotaMap;
+import com.syntel.isap.provisioning.bean.VdcMaster;
+import com.syntel.isap.provisioning.bean.VdcProjQuotaMap;
+import com.syntel.isap.provisioning.bean.VmProvCredential;
+import com.syntel.isap.provisioning.service.IDepartmentService;
+
+/**
+ * @author KK5007843
+ *
+ */
+@Controller
+public class DepartmentController {
+	
+	@Autowired
+	private IDepartmentService departmentService;
+	
+	private static final Logger LOGGER = Logger.getLogger(DepartmentController.class.getName());
+
+   /**
+	 * param 
+	 * @param  session 
+	 * @return model
+	 */
+	@RequestMapping(value="/departmentList", method=RequestMethod.GET)
+	  public ModelAndView  departmentList(HttpSession session) {
+		   List<User> usersList=null;
+		  List<Department> departments=new ArrayList<Department>();
+	      String view="department/departmentList";
+		  LOGGER.info("Inside departmentList()- Get");
+		  ModelAndView model = new ModelAndView();
+		  User user= (User) session.getAttribute("userValue");
+		 
+		  if(user!=null){
+		  departments=departmentService.getDepartmentList(user.getCg_id());
+		  LOGGER.info("user Session Values"+user.getCg_id());
+		   usersList=departmentService.getUsersByCorporate(user);
+		  }
+		  model.addObject("userList", usersList);
+	      model.addObject("list", departments);
+	      model.setViewName(view);
+	      return model;
+	  }
+	
+	/**
+	  * param 
+	  * @param  session 
+	  * @return model
+	  */
+	 @RequestMapping(value="/addDepartment", method=RequestMethod.GET)
+	  public ModelAndView  addDepartmentGet(HttpSession session){
+		  List<Department> departments=new ArrayList<Department>();
+		  String view="department/departmentList";
+		  LOGGER.info("Inside addDepartment()- Get");
+		  ModelAndView model = new ModelAndView();
+		  User user= (User) session.getAttribute("userValue");
+		  departments=departmentService.getDepartmentList(user.getCg_id());
+		  LOGGER.info("user Session Values"+user.getCg_id());
+		  List<User> usersList=departmentService.getUsersByCorporate(user);
+		  model.addObject("userList", usersList);
+	      model.addObject("list", departments);
+	      model.setViewName(view);
+		  return model;
+	  }
+	
+	/**
+	  * param 
+	  * @param  @ModelAttribute user and department,session 
+	  * @return model
+	  */
+	 @RequestMapping(value="/addDepartment", method=RequestMethod.POST)
+	  public ModelAndView  addDepartment( @ModelAttribute("user") User user, HttpSession session,
+			                              @ModelAttribute("department") Department department){
+		  List<Department> departments=new ArrayList<Department>();
+		  User userSession= (User) session.getAttribute("userValue");
+		  user.setCg_id(userSession.getCg_id());
+		  LOGGER.info("Inside addDepartment()- Post");
+		  ModelAndView model = new ModelAndView();
+		  String corporateAdminName = userSession.getUsr_name();
+		  departmentService.addDepartment(department,user,corporateAdminName);
+		  departments=departmentService.getDepartmentList(user.getCg_id());
+	      String view="department/departmentList";
+	      model.addObject("list", departments);
+	      model.setViewName(view);
+	      return model;
+	  }
+	 
+	/**
+	  * param 
+	  * @param  @ModelAttribute user and department,session 
+	  * @return model
+	  */
+	 @RequestMapping(value="/editDepartment", method=RequestMethod.POST)
+	  public ModelAndView  editDepartment( @ModelAttribute("user") User user,HttpSession session,
+			                              @ModelAttribute("department") Department department){
+		  List<Department> departments=new ArrayList<Department>();
+		  User userSession= (User) session.getAttribute("userValue");
+		  user.setCg_id(userSession.getCg_id());
+		  LOGGER.info("Inside editDepartment()- Post");
+		  LOGGER.info("Inside editDepartment()- deptId"+department.getDpt_id());
+		  ModelAndView model = new ModelAndView();
+		  departmentService.editDepartment(department,user);
+		  departments=departmentService.getDepartmentList(user.getCg_id());
+	      String view="department/departmentList";
+	      model.addObject("list", departments);
+	      model.setViewName(view);
+	      return model;
+	  }
+	 
+	/**
+	  * param 
+	  * @param  @RequestParam deptId,session 
+	  * @return model
+	  */ 
+	 @RequestMapping(value="/deleteDepartment", method=RequestMethod.GET)
+	  public ModelAndView  deleteDepartment( @RequestParam("deptId")Integer deptId,HttpSession session){
+		  List<Department> departments=new ArrayList<Department>();
+		  User user= (User) session.getAttribute("userValue");
+		  LOGGER.info("Inside deleteDepartment()- GET");
+		  LOGGER.info("Inside deleteDepartment()- dept number "+deptId);
+		  
+		  ModelAndView model = new ModelAndView();
+		  
+		  
+		  int CgID = user.getCg_id();
+		  
+		  
+		
+		
+		  departmentService.deleteDepartment(deptId);
+		  departments=departmentService.getDepartmentList(CgID);
+	      String view="department/departmentList";
+	      model.addObject("list", departments);
+	      model.setViewName(view);
+	      return model;
+	  }
+	 
+	
+	 @RequestMapping(value="/deleteDepartmentQuota", method=RequestMethod.GET)
+	  public ModelAndView  deleteDepartmentQuota( @RequestParam("dpt_id")Integer dpt_id,HttpSession session){
+		  List<Department> departments=new ArrayList<Department>();
+		  User user= (User) session.getAttribute("userValue");
+		  LOGGER.info("Inside deleteDepartment()- GET");
+		  int cgID =  user.getCg_id();
+		  ModelAndView model = new ModelAndView();
+		   VdcDeptQuotaMap  vdcDeptQuotaMap  = new VdcDeptQuotaMap();
+		   vdcDeptQuotaMap = departmentService.getVdcdetailsByCgID(dpt_id,cgID);
+		  departmentService.updateFreememoryInCgquota(vdcDeptQuotaMap,cgID);
+		  departmentService.deleteDepartmentQuota(dpt_id,cgID);
+		  departments=departmentService.getDepartmentList(user.getCg_id());
+	      String view="department/departmentList";
+	      model.addObject("list", departments);
+	      model.setViewName(view);
+	      return model;
+	  }
+	 
+	 
+	/**
+	  * param 
+	  * @param  @PathVariable deptId,session 
+	  * @return json
+	  */ 
+	 @RequestMapping(value="/getDepartment/{deptId}", method = RequestMethod.GET)
+		public @ResponseBody Department getDepartmentInJSON(@PathVariable Integer deptId) {
+		 Department department = new Department();
+		 LOGGER.info("Inside getDepartmentInJSON()- GET");
+		 department =departmentService.getDepartmentById(deptId);	
+		 return department;
+		}
+	 
+	/**
+	  * param 
+	  * @param  @PathVariable deptId,session 
+	  * @return json
+	  */ 
+	 @RequestMapping(value="/getOwners/{userName}", method = RequestMethod.GET)
+		public @ResponseBody User getOwnersInJSON(@PathVariable String userName,HttpSession session) {
+         User user=new User();
+		 LOGGER.info("Inside getOwnersInJSON()- GET");
+         user=departmentService.getOwnerByName(userName);
+		 return user;
+		}
+	 
+	/**
+	  * param 
+	  * @param  session
+	  * @return json
+	  */ 
+	 @RequestMapping(value="/getDeptUsers", method = RequestMethod.GET)
+		public @ResponseBody List<User> getDeptUsersInJSON(HttpSession session) {
+		  User user= (User) session.getAttribute("userValue");
+		  LOGGER.info("Inside user getDeptUsers Session Values"+user.getCg_id());
+		  List<User> usersList=departmentService.getUsersByCorporate(user);
+		  return usersList;
+		} 
+	 
+	 
+	 @RequestMapping(value="/getVdcDetailsFromCorporateTable/{selectedVdcId}/{cgId}", method = RequestMethod.GET)
+	 public @ResponseBody VdcCgQuotaMap getVdcDetailsFromServices(HttpSession session,@PathVariable int selectedVdcId,@PathVariable int cgId) {
+		
+		 VdcCgQuotaMap vdcCgQuotaMap = new  VdcCgQuotaMap();
+	
+		 vdcCgQuotaMap = departmentService.vdcCgQuotaByVdcIDandcgID(selectedVdcId,cgId);
+		
+		 LOGGER.info("----------------Inside user getVdcDetailsFromCorporateTable Values-------------------"+vdcCgQuotaMap.getFree_disk_storage());
+		 LOGGER.info("----------------Inside user getVdcDetailsFromCorporateTable Values-------------------"+vdcCgQuotaMap.getFree_mem());
+		 LOGGER.info("----------------Inside user getVdcDetailsFromCorporateTable Values-------------------"+vdcCgQuotaMap.getFree_vcpu());
+		 return vdcCgQuotaMap;
+		} 
+	 
+
+
+		 @RequestMapping(value ="/allocateVdcToDepartmentGroup" ,method=RequestMethod.GET)
+		 public ModelAndView allocateVdcToCorporateGroups(@ModelAttribute VdcDeptQuotaMap vdcDeptQuotaMapBean,HttpSession session) {
+			 List<Department> departments=new ArrayList<Department>();
+			 String view="department/departmentList";
+			  User user= (User) session.getAttribute("userValue");
+			  LOGGER.info("Inside deleteDepartment()- GET");
+			  ModelAndView model = new ModelAndView();
+		  vdcDeptQuotaMapBean.setFree_mem(vdcDeptQuotaMapBean.getTotal_mem());
+			  vdcDeptQuotaMapBean.setFree_vcpu(vdcDeptQuotaMapBean.getTotal_vcpu());
+			  vdcDeptQuotaMapBean.setFree_disk_storage(vdcDeptQuotaMapBean.getTotal_disk_storage());
+			  vdcDeptQuotaMapBean.setCreated_by(user.getUsr_name());
+			 int cgID = user.getCg_id();
+			  departmentService.allocateVdcToDepaertmentGroup(vdcDeptQuotaMapBean,cgID);
+			  
+		  departments=departmentService.getDepartmentList(user.getCg_id());
+		      
+		      model.addObject("list", departments);
+		      model.setViewName(view);
+		      return model;
+
+				
+			}
+		 
+		 
+		/*  @RequestMapping(value="/checkTotalCgvcpuAvailability", method = RequestMethod.POST)
+			public @ResponseBody VdcDeptQuotaMap getAvailableVdcList(@RequestParam("total_cg_vcpu") String total_cg_vcpu,HttpSession session)
+	        {
+			  User user= (User) session.getAttribute("userValue");
+			  
+			 int cg_id = user.getCg_id();
+			  
+	    	  int check =0;
+	    	 
+	    	  
+	    	  
+	    	  
+	    	 //System.out.println("====="+usr_name);
+	    	    LOGGER.info("inside ajax()-");
+	   	        
+	    	    check = departmentService.getAvaliableVcpuAllocated(total_cg_vcpu,cg_id);
+	   	      
+	    	    return check;
+	    	 
+	       }*/
+		  
+		  
+		  @RequestMapping(value="/checkTotalCgvcpuAvailability", method = RequestMethod.POST)
+			public @ResponseBody int getAllocatedVDCforDpt(@RequestParam("total_cg_vcpu") String total_cg_vcpu,HttpSession session)
+	        {
+			  User user= (User) session.getAttribute("userValue");
+			  
+			 int cg_id = user.getCg_id();
+			  
+	    	  int check =0;
+	    	 
+	    	  
+	    	  
+	    	  
+	    	 //System.out.println("====="+usr_name);
+	    	    LOGGER.info("inside ajax()-");
+	   	        
+	    	    check = departmentService.getAvaliableVcpuAllocated(total_cg_vcpu,cg_id);
+	   	      
+	    	    return check;
+	    	 
+	       }
+		  
+		
+		     @RequestMapping(value="/checkVdcAllocates", method = RequestMethod.POST)
+				public @ResponseBody int getVDCdetails(@RequestParam("selectedVdcId") int selectedVdcId,@RequestParam("dptId")  int dptId)
+		        {
+		    	 
+		    	 LOGGER.info("inside ajax() of checkVDCAllocated-----------------------------------------");
+		    	  int check =0;
+		    	 
+		    	// System.out.println("====="+usr_name);
+		    	    LOGGER.info("inside ajax()--------------------");
+		   	        
+		    	    
+		    	   // int selectedVdcIdint = Integer.parseInt(selectedVdcId);
+		    	   // int  selecteddptID  = Integer.parseInt(dptId);
+		    	    check = departmentService.getVdcdetails(selectedVdcId,dptId);
+		   	      
+		    	    return check;
+		    	 
+		       }
+		  
+		  
+		 /* 
+		  @RequestMapping(value="/checkAllocatedVDCforDpt", method = RequestMethod.POST)
+			public @ResponseBody VdcDeptQuotaMap getTotalCgvcpuAl(@RequestParam("total_cg_vcpu") String total_cg_vcpu,HttpSession session)
+	        {
+			  VdcCgQuotaMap vdcCgQuotaMap = new  VdcCgQuotaMap();
+			  vdcCgQuotaMap = departmentService.getVdcDetailsByDptID();
+	    	    return vdcCgQuotaMap;
+	    	 
+	       }*/
+	 
+		     @RequestMapping(value="/departmentQuota", method=RequestMethod.GET)
+				public ModelAndView listdptQuotaDetails(HttpSession session) {
+				 
+				 System.out.println("inside departmentQuota");
+					LOGGER.info("Inside departmentQuota GET");
+					String view = "department/departmentQuota";
+					ModelAndView model = new ModelAndView();
+					List<String> departmentNames = new ArrayList<String>();
+					User user= (User) session.getAttribute("userValue");
+					List<VdcDeptQuotaMap> vdcdptQuotaMapBeanList = new ArrayList<VdcDeptQuotaMap>();
+					vdcdptQuotaMapBeanList = departmentService.getRowsFromDptQuotaMapTable();
+					
+					for(VdcDeptQuotaMap vdcDptQuotaMapBean :vdcdptQuotaMapBeanList)
+					{
+						int dptId = vdcDptQuotaMapBean.getDpt_id();
+						Department dptgrp = departmentService.getDptGrpByID(dptId);
+						vdcDptQuotaMapBean.setDptbean(dptgrp);
+						
+						System.out.println("--------------------------department name---"+dptgrp.getDpt_name());
+					}
+					
+					
+					/*System.out.println("-------------"+vdcdptQuotaMapBeanList.get(0));*/
+					
+					model.addObject("vdcdptQuotaMapBeanList",vdcdptQuotaMapBeanList);
+					model.addObject("departmentNames",departmentNames);
+					model.setViewName(view);
+					return model;
+				}
+			 
+			 
+		     @RequestMapping(value="/checkallocatedmemory", method = RequestMethod.POST)
+				public @ResponseBody int getallocated_mem(@RequestParam("total_cg_mem") int free_mem,@RequestParam("selectedVdcId") int selectedVdcId ,HttpSession session)
+		        {
+		    	  int check =0;
+		    	  
+		    	  
+		    	  User user= (User) session.getAttribute("userValue");
+		    	  
+		    	 int cgID = user.getCg_id();
+		    	 
+		    	 int dptID = user.getDpt_id();
+		    	 System.out.println("===freemeory form UI=="+free_mem);
+		    	 System.out.println("=CG_ID From session value===="+cgID);
+		    	 System.out.println("=CG_ID From requitedParam  value===="+selectedVdcId);
+		    	    LOGGER.info("inside ajax()-");
+		   	        
+		    	    check = departmentService.getfree_mem(free_mem,cgID,selectedVdcId);
+		   	      
+		    	    return check;
+		    	 
+		       }
+		     
+		     @RequestMapping(value="/checkallocatedvcpu", method = RequestMethod.POST)
+				public @ResponseBody int getallocated_vcpu(@RequestParam("total_cg_vcpu") int free_vcpu,@RequestParam("selectedVdcId") int selectedVdcId ,HttpSession session)
+		        {
+		    	  int check =0;
+		    	  
+		    	  
+		    	  User user= (User) session.getAttribute("userValue");
+		    	  
+		    	 int cgID = user.getCg_id();
+		    	 System.out.println("===freeVCPU form UI=="+free_vcpu);
+		    	 System.out.println("=CG_ID From session value===="+cgID);
+		    	 System.out.println("=CG_ID From requitedParam  value===="+selectedVdcId);
+		    	    LOGGER.info("inside ajax()-");
+		   	        
+		    	    check = departmentService.getfree_vcpu(free_vcpu,cgID,selectedVdcId);
+		   	      
+		    	    return check;
+		    	 
+		       }
+		     
+		     
+		     @RequestMapping(value="/checkallocateddiskstorage", method = RequestMethod.POST)
+				public @ResponseBody int getallocated_disk(@RequestParam("total_cg_disk_storage") int free_disk_storage,@RequestParam("selectedVdcId") int selectedVdcId ,HttpSession session)
+		        {
+		    	  int check =0;
+		    	  
+		    	  
+		    	  User user= (User) session.getAttribute("userValue");
+		    	  
+		    	 int cgID = user.getCg_id();
+		    	 System.out.println("===free Disk storage form UI=="+free_disk_storage);
+		    	 System.out.println("=CG_ID From session value===="+cgID);
+		    	    LOGGER.info("inside ajax()-");
+		   	        
+		    	    check = departmentService.getfree_disk(free_disk_storage,cgID,selectedVdcId);
+		   	      
+		    	    return check;
+		    	 
+		       }
+		     
+		     
+		     @RequestMapping(value="/getDepartmentName/{dptid}", method = RequestMethod.GET)
+				public @ResponseBody Department getDepartmentNameInJSON(@PathVariable Integer dptid) {
+				 Department department = new Department();
+				 LOGGER.info("Inside getDepartmentNameInJSON()- GET");
+				 department =departmentService.getDepartmentName(dptid);	
+				 LOGGER.info("department Name -"+department.getDpt_name());
+              return department;
+				}
+		     
+		     
+		     @RequestMapping(value="/getAllocatedDetails/{dptid}", method = RequestMethod.GET)
+				public @ResponseBody VdcDeptQuotaMap getAllocatedDetailsInJSON(@PathVariable Integer dptid) {
+		    	 VdcDeptQuotaMap vdcDeptQuotaMap = new VdcDeptQuotaMap();
+				 LOGGER.info("Inside getDepartmentNameInJSON()- GET");
+				 vdcDeptQuotaMap =departmentService.getAllocatedDetails(dptid);	
+				 
+        return vdcDeptQuotaMap;
+				}
+		     
+		     
+		     @RequestMapping(value="/getVdcName/{selectedVdc}", method = RequestMethod.GET)
+				public @ResponseBody VdcMaster getVdcNameInJSON(@PathVariable Integer selectedVdc) {
+		    	 VdcMaster vdcname = departmentService.getVdcName(selectedVdc);
+				 LOGGER.info("Inside getVdcNameInJSON()- GET");
+			
+        return vdcname;
+				}
+		     
+		     
+		     
+		     
+	 
+}

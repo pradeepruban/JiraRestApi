@@ -1,0 +1,43 @@
+package com.syntel.isap.provisioning.service;
+
+import java.util.List;
+
+import com.syntel.isap.provisioning.bean.CorporateGroups;
+import com.syntel.isap.provisioning.bean.Project;
+import com.syntel.isap.provisioning.bean.User;
+import com.syntel.isap.provisioning.bean.VdcCgQuotaMap;
+import com.syntel.isap.provisioning.bean.VdcDeptQuotaMap;
+import com.syntel.isap.provisioning.bean.VdcMaster;
+import com.syntel.isap.provisioning.bean.VdcProjQuotaMap;
+
+
+/**
+ * @author SK5004144
+ *
+ */
+
+public interface IProjectService {
+	
+	 void insertData(Project project, int userId);
+	List<Project> getprojectLists(int dpid);
+	List<Integer> getUserinfo(User user);
+	 void deleteProject(Integer proj_id);
+	 Project editProject(Integer proj_id);
+	 void updateProject(Project project,User user);
+	
+	List<User> getUsersByCorporate( User user);
+	 User getOwnerByName(String userName);
+	 List<VdcMaster> getVdcListFromVdcMaster();
+	 VdcDeptQuotaMap vdcCgQuotaByVdcIDanddptID(int selectedVdcId,
+			int dptId);
+	 int getVdcdetails(int selectedVdcId, int projId);
+	 void allocateVdcToProjectGroup(VdcProjQuotaMap vdcProjQuotaMapBean, int dptID);
+	
+    List<VdcProjQuotaMap> getRowsFromProjQuotaMapTable();
+    Project getProjGrpByID(int proj_id);
+	int getfree_diskstorage(int free_disk_storage, int dptID,int selectedVdcId);
+	int getfree_vcpuprojects(int free_vcpu, int dptID,int selectedVdcId);
+	int getfree_memory(int free_mem, int dptID,int selectedVdcId);
+	
+
+}
