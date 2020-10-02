@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
 
-		<title>ISAP User Custom Service Page 2020</title>
+		<title>ISAP User Custom Service Page Oct-2020</title>
 		<meta name="description" content="">
 		<meta name="author" content="">	
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
